@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Tool, ToolCategory, CATEGORY_INFO } from '@/types/tool';
+import { Tool, ToolCategory } from '@/types/tool';
 import { ToolCard } from './ToolCard';
 
 export interface ToolGridProps {
@@ -119,8 +119,8 @@ export function ToolGrid({
         {Object.entries(groupedTools).map(([cat, categoryTools]) => {
           if (categoryTools.length === 0) return null;
 
-          const categoryInfo = CATEGORY_INFO[cat as ToolCategory];
           const categoryName = t(`home.categories.${categoryTranslationKeys[cat as ToolCategory]}`);
+          const categoryDescription = t(`home.categoriesDescription.${categoryTranslationKeys[cat as ToolCategory]}`);
 
           return (
             <section key={cat} data-testid={`tool-grid-category-${cat}`}>
@@ -129,7 +129,7 @@ export function ToolGrid({
                   {categoryName}
                 </h2>
                 <p className="text-sm text-[hsl(var(--color-muted-foreground))]">
-                  {categoryInfo.description}
+                  {categoryDescription}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

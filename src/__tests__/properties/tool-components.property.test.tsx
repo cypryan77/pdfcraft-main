@@ -4,7 +4,9 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { tools } from '@/config/tools';
 import { locales } from '@/lib/i18n/config';
+import { CATEGORY_INFO } from '@/types/tool';
 import { ToolCard } from '@/components/tools/ToolCard';
+import { ToolGrid } from '@/components/tools/ToolGrid';
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -23,7 +25,14 @@ vi.mock('next/navigation', () => ({
 
 // Mock next-intl to avoid NextIntlClientProvider requirement
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string) => {
+    const messages: Record<string, string> = {
+      'home.categories.editAnnotate': 'Editar y Anotar',
+      'home.categoriesDescription.editAnnotate': 'Editar, anotar y modificar contenido PDF',
+    };
+
+    return messages[key] ?? key;
+  },
   useLocale: () => 'en',
 }));
 
@@ -159,6 +168,22 @@ describe('Tool Component Property Tests', () => {
         ),
         { numRuns: 100 }
       );
+    });
+
+    it('tool grid category descriptions use localized copy instead of static English defaults', () => {
+      const editTool = tools.find(tool => tool.category === 'edit-annotate');
+      expect(editTool).toBeDefined();
+
+      render(
+        <ToolGrid
+          tools={[editTool!]}
+          locale="es"
+          showCategoryHeaders
+        />
+      );
+
+      expect(screen.getByText('Editar, anotar y modificar contenido PDF')).toBeInTheDocument();
+      expect(screen.queryByText(CATEGORY_INFO['edit-annotate'].description)).not.toBeInTheDocument();
     });
   });
 });
