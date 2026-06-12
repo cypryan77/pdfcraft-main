@@ -44,7 +44,8 @@
       "about": "About",
       "faq": "FAQ",
       "privacy": "Privacy",
-      "contact": "Contact"
+      "contact": "Contact",
+      "allTools": "All Tools"
     },
     "buttons": {
       "upload": "Upload Files",
@@ -86,6 +87,17 @@
       "footer": "© 2025 PDFCraft. All rights reserved.",
       "copyright": "© {year} PDFCraft. All rights reserved.",
       "privacyBadge": "100% Private - Files never leave your device",
+      "resources": "Resources",
+      "security": "Security",
+      "compliance": "Compliance",
+      "clientSideProcessing": "Client-side processing",
+      "filesNeverLeave": "Files never leave your device",
+      "noFileUploads": "No file uploads",
+      "privateSecure": "100% private & secure",
+      "gdprCompliant": "GDPR Compliant",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
       "madeWith": "Made with <Heart /> and <Nextjs />"
     },
     "recentFiles": {

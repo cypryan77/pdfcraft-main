@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { locales, type Locale } from '@/lib/i18n/config';
 import { 
@@ -20,8 +21,19 @@ vi.mock('next-intl', () => ({
       'navigation.faq': 'FAQ',
       'navigation.privacy': 'Privacy',
       'navigation.contact': 'Contact',
+      'navigation.allTools': 'Todas las herramientas',
       'buttons.selectLanguage': 'Select Language',
       'buttons.close': 'Close',
+      'footer.resources': 'Recursos',
+      'footer.security': 'Seguridad',
+      'footer.compliance': 'Cumplimiento',
+      'footer.clientSideProcessing': 'Procesamiento en el navegador',
+      'footer.filesNeverLeave': 'Los archivos nunca salen de tu dispositivo',
+      'footer.noFileUploads': 'Sin subidas de archivos',
+      'footer.privateSecure': '100% privado y seguro',
+      'footer.terms': 'Términos',
+      'footer.privacy': 'Privacidad',
+      'footer.cookies': 'Cookies',
       'footer.copyright': '© {year} PDFCraft. All rights reserved.',
       'footer.privacyBadge': '100% Private - Files never leave your device',
     };
@@ -29,10 +41,12 @@ vi.mock('next-intl', () => ({
   },
 }));
 
+const mockPush = vi.fn();
+
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: mockPush,
     replace: vi.fn(),
   }),
   usePathname: () => '/en/tools',
@@ -47,11 +61,13 @@ vi.mock('next/link', () => ({
 // Import components after mocks
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { MobileMenu } from '@/components/layout/MobileMenu';
 
 describe('Layout Property Tests', () => {
   beforeEach(() => {
     // Clear localStorage before each test
     localStorage.clear();
+    mockPush.mockClear();
   });
 
   /**
@@ -226,6 +242,46 @@ describe('Layout Property Tests', () => {
         // Verify round-trip
         expect(retrieved).toBe(locale);
       }
+    });
+  });
+
+  describe('Spanish entry point', () => {
+    it('Header exposes a direct Spanish button that switches the current path to Spanish', async () => {
+      const user = userEvent.setup();
+
+      render(<Header locale="en" />);
+
+      const spanishButton = screen.getByRole('button', { name: /español/i });
+      expect(spanishButton).toBeInTheDocument();
+
+      await user.click(spanishButton);
+
+      expect(mockPush).toHaveBeenCalledWith('/es/tools');
+      expect(getLanguagePreference()).toBe('es');
+    });
+  });
+
+  describe('Spanish menu labels', () => {
+    it('Footer uses translated Spanish section labels instead of hard-coded English labels', () => {
+      render(<Footer locale="es" />);
+
+      expect(screen.getByRole('heading', { name: 'Recursos' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Seguridad' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Cumplimiento' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Resources' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Security' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Compliance' })).not.toBeInTheDocument();
+    });
+
+    it('Mobile tools submenu uses the translated all-tools label', async () => {
+      const user = userEvent.setup();
+
+      render(<MobileMenu isOpen locale="es" onClose={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: 'Tools' }));
+
+      expect(screen.getByRole('link', { name: 'Todas las herramientas' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'All Tools' })).not.toBeInTheDocument();
     });
   });
 });

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import fs from 'node:fs';
+import path from 'node:path';
 import { 
   tools, 
   getAllTools, 
@@ -348,6 +350,17 @@ describe('Tool Configuration Property Tests', () => {
         ),
         { numRuns: 100 }
       );
+    });
+
+    it('every configured tool is wired to a concrete tool page interface', () => {
+      const routeSource = fs.readFileSync(
+        path.resolve(process.cwd(), 'src/app/[locale]/tools/[tool]/page.tsx'),
+        'utf8'
+      );
+
+      for (const tool of tools) {
+        expect(routeSource).toContain(`case '${tool.id}':`);
+      }
     });
   });
 });

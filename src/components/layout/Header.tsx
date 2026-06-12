@@ -2,16 +2,17 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Search, Menu, X, Command, Github } from 'lucide-react';
-import { type Locale } from '@/lib/i18n/config';
+import { Search, Menu, X, Github } from 'lucide-react';
+import { getLocalizedPath, type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/Button';
 import { RecentFilesDropdown } from '@/components/common/RecentFilesDropdown';
 import { searchTools, SearchResult } from '@/lib/utils/search';
 import { getToolContent } from '@/config/tool-content';
 import { getAllTools } from '@/config/tools';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageSelector, saveLanguagePreference } from './LanguageSelector';
 
 export interface HeaderProps {
   locale: Locale;
@@ -21,6 +22,7 @@ export interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ locale, showSearch = true }) => {
   const t = useTranslations('common');
   const router = useRouter();
+  const pathname = usePathname();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -141,6 +143,11 @@ export const Header: React.FC<HeaderProps> = ({ locale, showSearch = true }) => 
   const handleMobileMenuToggle = useCallback(() => {
     setIsMobileMenuOpen((prev) => !prev);
   }, []);
+
+  const handleSpanishLanguageSelect = useCallback(() => {
+    saveLanguagePreference('es');
+    router.push(getLocalizedPath(pathname || `/${locale}`, 'es'));
+  }, [locale, pathname, router]);
 
   // Get tool icon based on category
   const getToolIcon = (category: string) => {
@@ -330,8 +337,18 @@ export const Header: React.FC<HeaderProps> = ({ locale, showSearch = true }) => 
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Language Selector placeholder */}
-            <div id="language-selector-slot" />
+            <Button
+              variant={locale === 'es' ? 'primary' : 'outline'}
+              size="sm"
+              onClick={handleSpanishLanguageSelect}
+              aria-label="Español"
+              aria-pressed={locale === 'es'}
+              className="hidden sm:inline-flex h-9 px-3"
+            >
+              Español
+            </Button>
+
+            <LanguageSelector currentLocale={locale} />
 
             {/* Mobile Menu Toggle */}
             <Button
